@@ -1,0 +1,13 @@
+{
+	"image": "darlon/django-avaliacao",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.black-formatter",
+				"qwtel.sqlite-viewer"
+			]
+		}
+	}
+}
