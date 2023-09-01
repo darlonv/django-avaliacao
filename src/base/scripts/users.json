@@ -1,0 +1,22 @@
+{
+    "darlon.vasata": {
+        "email": "darlon.vasata@ifpr.edu.br",
+        "password": "abc123"
+    },
+    "joao.silva": {
+        "email": "joao.silva@abc.com",
+        "password": "joao"
+    },
+    "a.a": {
+        "email": "a@a.com",
+        "password": "aa"
+    },
+    "b.c": {
+        "email": "b@b.com",
+        "password": "bb"
+    },
+    "c.c": {
+        "email": "c@c.com",
+        "password": "cc"
+    }
+}
