@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+
+<body>
+    Pagina logar
+
+    <p>
+        <form action="{% url 'logar' %}" method="POST">{% csrf_token %}
+            <input type="text" placeholder="username" name="username"><br>
+            <input type="password" placeholder="senha" name="password"><br>
+            <input type="submit" value="Login"><br>
+        </form>
+    </p>
+</body>
+
+</html>
