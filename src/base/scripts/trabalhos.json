@@ -1,0 +1,24 @@
+{
+    "001": {
+        "titulo": "Computação",
+        "autores": [
+            "Darlon",
+            "Pedro"
+        ]
+    },
+    "002": {
+        "titulo": "Matemática",
+        "autores": [
+            "Joao",
+            "Maria"
+        ]
+    },
+    "003": {
+        "titulo": "Física",
+        "autores": [
+            "Cícero",
+            "Heitor"
+        ],
+        "categoria": "E"
+    }
+}

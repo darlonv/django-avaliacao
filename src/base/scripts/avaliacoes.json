@@ -1,0 +1,20 @@
+{
+    "001": {
+        "avaliadores": [
+            "joao.silva"
+        ]
+    },
+    "002": {
+        "avaliadores": [
+            "darlon.vasata",
+            "b.b"
+        ]
+    },
+    "003": {
+        "avaliadores": [
+            "darlon.vasata",
+            "c.c",
+            "b.b"
+        ]
+    }
+}
