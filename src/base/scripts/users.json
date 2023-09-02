@@ -18,5 +18,9 @@
     "c.c": {
         "email": "c@c.com",
         "password": "cc"
+    },
+    "polyanna.miranda": {
+        "email": "polyanna.miranda@ifpr.edu.br",
+        "password": "pm"
     }
 }
