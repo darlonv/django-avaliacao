@@ -5,11 +5,29 @@ from django.contrib.auth.models import User
 
 
 class Trabalho(models.Model):
+    INTERNO = "I"
+    EXTERNO = "E"
+
+    CATEGORIA = [(INTERNO, "interno"), (EXTERNO, "externo")]
+
     identificador = models.CharField(
         max_length=10, null=False, blank=False, verbose_name="Id do trabalho"
     )
     titulo = models.CharField(
         max_length=200, null=False, blank=False, verbose_name="Título"
+    )
+
+    autores = models.CharField(
+        max_length=500, null=False, blank=False, verbose_name="Autores"
+    )
+
+    categoria = models.CharField(
+        max_length=1,
+        null=False,
+        blank=False,
+        choices=CATEGORIA,
+        verbose_name="Categoria",
+        default=INTERNO,
     )
 
     def __str__(self):
