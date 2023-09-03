@@ -72,6 +72,17 @@ class Avaliacao(models.Model):
     )
 
     # Critérios de avaliação
+    # Digramação
+    nota_diagramacao = models.IntegerField(
+        null=False, blank=False, default=0, verbose_name="Diagramação"
+    )
+    # Texto
+    nota_texto = models.IntegerField(
+        null=False, blank=False, default=0, verbose_name="Texto"
+    )
+    nota_apresentacao = models.IntegerField(
+        null=False, blank=False, default=0, verbose_name="Apresentação"
+    )
 
     def __str__(self):
         return f"{self.trabalho} - {self.avaliador}"
