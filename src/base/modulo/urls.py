@@ -11,5 +11,6 @@ urlpatterns = [
     path("ok/", views.page_ok, name="ok"),
     path("error/", views.page_error, name="error"),
     path("processa_avaliacao/", views.processa_avaliacao, name="processa_avaliacao"),
+    path("status/trabalhos/", views.page_status_trabalhos, name="status_trabalhos"),
     path("teste/", views.page_teste, name="teste"),
 ]

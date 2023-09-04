@@ -1,11 +1,12 @@
 {
     "darlon.vasata": {
         "email": "darlon.vasata@ifpr.edu.br",
-        "password": "abc123"
+        "password": "dv",
+        "is_staff": true
     },
     "joao.silva": {
         "email": "joao.silva@abc.com",
-        "password": "joao"
+        "password": "js"
     },
     "a.a": {
         "email": "a@a.com",

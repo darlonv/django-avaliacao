@@ -26,8 +26,12 @@ def run():
             else:
                 email = users[username]["email"]
                 password = users[username]["password"]
+                staff = False
+                if "is_staff" in users[username]:
+                    staff = users[username]["is_staff"]
+
                 user = User.objects.create_user(
-                    username=username, email=email, password=password
+                    username=username, email=email, password=password, is_staff=staff
                 )
                 user.save()
                 print(f"feito.")

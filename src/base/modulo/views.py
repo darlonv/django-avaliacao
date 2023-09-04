@@ -34,7 +34,7 @@ def page_signin(request):
             return HttpResponse("Usuário já cadastrado")
 
         user = User.objects.create_user(
-            username=username, email=email, password=password
+            username=username, email=email, password=password, is_staff=False
         )
         user.save()
         return HttpResponse(username)
@@ -171,7 +171,39 @@ def page_ok(request):
 # Página de mensagem de erro
 @login_required(login_url="/auth/login/")
 def page_error(request):
-    context = {"error_message": "Mensagem de erro."}
+    context = dict()
+    context["error_message"] = "Mensagem de erro."
+    return render(request, "error.html", context)
+
+
+# Página de status dos trabalhos
+@login_required(login_url="/auth/login/")
+def page_status_trabalhos(request):
+    context = dict()
+    trabalhos = dict()
+    titulos = []
+    if request.user.is_staff:
+        # obtém os trabalhos
+        trabalhos_query = Trabalho.objects.all()
+        # Verifica o número de avaliadores
+        # Avaliadores
+        # Já avaliados
+
+        print("---")
+        for trab in trabalhos_query:
+            trabalhos[trab.identificador] = {
+                "tid": trab.identificador,
+                "titulo": trab.titulo,
+            }
+            titulos.append(trab.titulo)
+        print("+++")
+
+        # return HttpResponse(trabalhos)
+        context["trabalhos"] = trabalhos
+        context["titulos"] = titulos
+        return render(request, "status_trabalhos.html", context)
+
+    context["error_message"] = "Sem permissão"
     return render(request, "error.html", context)
 
 
