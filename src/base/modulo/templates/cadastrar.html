@@ -11,7 +11,7 @@
     Pagina cadastrar
 
     <p>
-    <form action="{% url 'cadastrar' %}" method="POST">{% csrf_token %}
+    <form action="{% url 'signin' %}" method="POST">{% csrf_token %}
         <input type="text" placeholder="username" name="username"><br>
         <input type="email" placeholder="email" name="email"><br>
         <input type="password" placeholder="senha" name="password"><br>

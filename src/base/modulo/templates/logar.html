@@ -11,11 +11,11 @@
     Pagina logar
 
     <p>
-        <form action="{% url 'logar' %}" method="POST">{% csrf_token %}
-            <input type="text" placeholder="username" name="username"><br>
-            <input type="password" placeholder="senha" name="password"><br>
-            <input type="submit" value="Login"><br>
-        </form>
+    <form action="{% url 'login' %}" method="POST">{% csrf_token %}
+        <input type="text" placeholder="username" name="username"><br>
+        <input type="password" placeholder="senha" name="password"><br>
+        <input type="submit" value="Login"><br>
+    </form>
     </p>
 </body>
 

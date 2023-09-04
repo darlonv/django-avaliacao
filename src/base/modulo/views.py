@@ -10,9 +10,12 @@ from django.contrib.auth.decorators import login_required
 # Models
 from modulo.models import Trabalho, Avaliacao
 
+# Formulários
+from .forms import AvaliacaoForm
+
 
 # Create your views here.
-def cadastrar(request):
+def page_signin(request):
     if request.method == "GET":
         # Caso requisição GET, é apresentada a pagina de cadastro
         # com o formulário a ser preenchido
@@ -37,7 +40,7 @@ def cadastrar(request):
         return HttpResponse(username)
 
 
-def logar(request):
+def page_login(request):
     # Caso o usuário já esteja autenticado, redireciona para a página de avaliação
     if request.user.is_authenticated:
         return redirect(page_avaliacao)
@@ -66,7 +69,14 @@ def logar(request):
 
 # Página de logout
 @login_required(login_url="/auth/login/")
-def deslogar(request):
+def page_logout(request):
+    # redireciona para a página de login
+    return render(request, "logout.html")
+
+
+# Processa o logout
+@login_required(login_url="/auth/login/")
+def processa_logout(request):
     # Atualiza a sessão
     logout(request)
     # redireciona para a página de login
@@ -86,8 +96,10 @@ def page_avaliar(request):
     tid = request.GET.get("tid", "x")
     # objeto do usuário no BD
     user = request.user
+    context = dict()
 
-    context = {"a": "--", "tid": tid}
+    context["a"] = "--"
+    context["tid"] = tid
 
     # obtém o trabalho
     trabalho = Trabalho.objects.filter(identificador=tid).first()
@@ -103,45 +115,50 @@ def page_avaliar(request):
         context["error_message"] = "Avaliador não associado ao trabalho"
         return render(request, "error.html", context)
 
+    form = AvaliacaoForm()  # Cria o formulário de avaliação
+    # atualiza com notas anteriores
+    # form.data["nota_diagramacao"] =  aval.nota_diagramacao
+    # form.data["nota_digramacao"] = 2
+    # form.data["nota_texto"] = aval.nota_texto
+    # form.data["nota_apresentacao"] = aval.nota_apresentacao
+
+    context["form"] = form  # Passa o formulário para a página
     context["avaliador"] = user.username
-    return render(request, "avaliar.html", context)
+    context["titulo"] = trabalho.titulo
+    context["autores"] = trabalho.autores
+    return render(request, "avaliar.html", context)  # renderiza a página
 
 
 # Página que recebe e processa os dados da avaliacao do formulario
 @login_required(login_url="/auth/login/")
 def processa_avaliacao(request):
-    # Recebe os dados do formulario
-    notas = {
-        "diagramacao": request.POST.get("diagramacao"),
-        "texto": request.POST.get("texto"),
-        "apresentacao": request.POST.get("apresentacao"),
-        "teste": request.POST.get("teste"),
-    }
-    tid = request.POST.get("tid")
+    context = dict()
+    form = AvaliacaoForm(request.POST)
+    if form.is_valid():
+        tid = request.POST.get("tid")
 
-    for nota in notas:
-        # verifica se está sem valor
-        if not notas[nota]:
-            notas[nota] = 0
-        else:
-            # converte para inteiro
-            notas[nota] = int(notas[nota])
+        # obtem dados do trabalho e do avaliador
+        trabalho = Trabalho.objects.get(identificador=tid)
+        avaliador = request.user
 
-    # obtem dados do trabalho e do avaliador
-    trabalho = Trabalho.objects.get(identificador=tid)
-    avaliador = request.user
+        # obtém o registro da avaliacao no BD
+        avaliacao = Avaliacao.objects.get(trabalho=trabalho, avaliador=avaliador)
 
-    # Salva os dados da avaliacao no BD
-    avaliacao = Avaliacao.objects.get(trabalho=trabalho, avaliador=avaliador)
-    avaliacao.nota_diagramacao = notas["diagramacao"]
-    avaliacao.nota_texto = notas["texto"]
-    avaliacao.nota_apresentacao = notas["apresentacao"]
-    avaliacao.save()
+        # atualiza os dados do registro
+        avaliacao.nota_diagramacao = form.data["diagramacao"]
+        avaliacao.nota_texto = form.data["texto"]
+        avaliacao.nota_apresentacao = form.data["apresentacao"]
+        avaliacao.status = "A"  # Marca como avaliado
 
-    # Redireciona para a página de ok
-    context = {"ok_message": "Trabalho avaliado. Obrigado."}
-    context["notas"] = notas
-    return render(request, "ok.html", context)
+        # Salva os dados da avaliacao no BD
+        avaliacao.save()
+
+        # Redireciona para a página de ok
+        context["ok_message"] = "Trabalho avaliado. Obrigado."
+        return render(request, "ok.html", context)
+    else:
+        context["error_message"] = "Erro ao processar os dados preenchidos"
+        return render(request, "error.html", context)
 
 
 # Página de mensagens
@@ -156,3 +173,10 @@ def page_ok(request):
 def page_error(request):
     context = {"error_message": "Mensagem de erro."}
     return render(request, "error.html", context)
+
+
+# Página de testes
+@login_required(login_url="/auth/login/")
+def page_teste(request):
+    context = dict()
+    return render(request, "teste.html", context)

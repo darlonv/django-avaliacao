@@ -8,18 +8,21 @@
 </head>
 
 <body>
-    {{a}}<br>
-    tid:{{tid}}<br>
-    avaliador:{{avaliador}}<br>
-    Avaliação de trabalhos
-
-    <form action="{% url  'processa_avaliacao' %}" method="POST">{% csrf_token %}
-        <label>Diagramação</label><input type="number" placeholder="nota" min="0" max="10" name="diagramacao"><br>
-        <label>Texto</label><input type="number" placeholder="nota" min="0" max="10" name="texto"><br>
-        <label>Apresentação</label><input type="number" placeholder="nota" min="0" max="10" name="apresentacao"><br>
+    Avaliação de trabalho<br>
+    avaliador: {{avaliador}}<br>
+    titulo : {{titulo}}<br>
+    autores: {{autores}}<br>
+    <br>
+    
+    Notas:
+    <form action="{% url 'processa_avaliacao' %}" method="POST">{% csrf_token %}
+        <table>
+            {{form.as_table}}
+        </table>
         <input type="hidden" name="tid" value="{{tid}}">
         <input type="submit" value="avaliar">
     </form>
+
 </body>
 
 </html>
