@@ -31,7 +31,7 @@ class Trabalho(models.Model):
     )
 
     def __str__(self):
-        return f"{self.identificador} - {self.titulo}"
+        return f"{self.titulo}, de {self.autores}"
 
     class Meta:
         verbose_name = "Trabalho"

@@ -8,9 +8,39 @@
 </head>
 
 <body>
-    Trabalhos a serem avaliados<br>
+    Total de trabalhos: {{n_trabalhos}}<br>
+
+    {% if n_trabalhos_pendentes == 0 %}
+    Todos os trabalhos alocados foram avaliados.
+    {% elif n_trabalhos_pendentes == 1 %}
+    Há 1 trabalho pendente de avaliação.
+    {% else %}
+    Há {{n_trabalhos_pendentes}} trabalhos pendentes de avaliação.<br>
+    {% endif %}
+
+    <ul>
+        {% for trab in pendentes %}
+        <li>
+            <a href="{% url 'avaliar' %}?tid={{trab.trabalho.identificador}}">{{trab.trabalho}}</a>
+        </li>
+        {% endfor %}
+    </ul>
+    <br><br>
 
     Trabalhos já avaliados
+    {{aval_avaliadas}}
+
+    <br><br>
+
+    {% for trab in avaliados %}
+    <li>
+        <a href="{% url 'avaliar' %}?tid={{trab.trabalho.identificador}}">{{trab.trabalho}}</a>
+    </li>
+    {% endfor %}
+    <br>==============<br>
+    <ul>
+        {{trab.trabalho.as_list}}
+    </ul>
 </body>
 
 </html>

@@ -84,7 +84,22 @@ def page_logout(request):
 # Página com trabalhos a serem avaliados
 @login_required(login_url="/auth/login/")
 def page_avaliacao(request):
-    return render(request, "avaliacao.html")
+    context = dict()
+    # obtém os trabalhos a serem avaliados
+    trabalhos_pendentes = Avaliacao.objects.filter(
+        avaliador=request.user, status="P"
+    )  # trabalhos pendentes
+    context["pendentes"] = list(trabalhos_pendentes)
+    context["n_trabalhos_pendentes"] = len(trabalhos_pendentes)
+
+    trabalhos_avaliados = Avaliacao.objects.filter(
+        avaliador=request.user, status="A"
+    )  # trabalhos avaliados
+    context["avaliados"] = trabalhos_avaliados
+    context["n_trabalhos"] = len(trabalhos_pendentes) + len(trabalhos_avaliados)
+
+    # obtém os trabalhos já avaliados
+    return render(request, "avaliacao.html", context)
 
 
 # Página de avaliação de trabalho
@@ -126,7 +141,6 @@ def page_avaliar(request):
         context["autores"] = trabalho.autores
         return render(request, "avaliar.html", context)  # renderiza a página
     else:
-        print("oooooo", flush=True)
         # Processa os dados recebidos via formulário
         form = AvaliacaoForm(request.POST)
         if form.is_valid():
@@ -149,8 +163,10 @@ def page_avaliar(request):
             avaliacao.save()
 
             # Redireciona para a página de ok
-            context["ok_message"] = "Trabalho avaliado. Obrigado."
-            return render(request, "ok.html", context)
+            # context["ok_message"] = "Trabalho avaliado. Obrigado."
+            # return render(request, "ok.html", context)
+            # Redireciona para a página com a lista de trabalhos
+            return redirect(page_avaliacao)
         else:
             context["error_message"] = "Erro ao processar os dados preenchidos"
             return render(request, "error.html", context)
