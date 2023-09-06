@@ -13,9 +13,9 @@
     titulo : {{titulo}}<br>
     autores: {{autores}}<br>
     <br>
-    
+
     Notas:
-    <form action="{% url 'processa_avaliacao' %}" method="POST">{% csrf_token %}
+    <form action="{% url 'avaliar' %}" method="POST">{% csrf_token %}
         <table>
             {{form.as_table}}
         </table>

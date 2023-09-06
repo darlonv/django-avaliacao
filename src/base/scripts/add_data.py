@@ -1,5 +1,5 @@
 # from base.models import Trabalho
-from modulo.models import Trabalho, Avaliacao
+from aval.models import Trabalho, Avaliacao
 from django.contrib.auth.models import User
 
 import json
