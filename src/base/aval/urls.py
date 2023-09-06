@@ -13,9 +13,6 @@ urlpatterns = [
     path("auth/singnin/", views.page_signin, name="signin"),  # cadastro
     path("auth/login/", views.page_login, name="login"),  # login
     path("auth/logout/", views.page_logout, name="logout"),  # logout
-    path(
-        "auth/processa_logout/", views.processa_logout, name="processa_logout"
-    ),  # recebe dados do logout
     ####
     # rotas para avaliação
     ####

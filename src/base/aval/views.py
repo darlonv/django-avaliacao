@@ -81,15 +81,6 @@ def page_logout(request):
         return render(request, "logar.html")
 
 
-# Processa o logout
-@login_required(login_url="/auth/login/")
-def processa_logout(request):
-    # Atualiza a sessão
-    logout(request)
-    # redireciona para a página de login
-    return render(request, "logar.html")
-
-
 # Página com trabalhos a serem avaliados
 @login_required(login_url="/auth/login/")
 def page_avaliacao(request):
