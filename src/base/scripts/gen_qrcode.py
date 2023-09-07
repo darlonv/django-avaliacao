@@ -3,12 +3,12 @@ import json
 
 # TRABALHOS_FILE = "scripts/trabalhos.json"
 TRABALHOS_FILE = "trabalhos.json"
-LINK_PREFIX="http://ip/path/?tid="
+LINK_PREFIX = "http://ip/path/?tid="
+
 
 def gen_save_qrcode(url, img_filename):
-
     qr = qrcode.QRCode(
-        version = 1,
+        version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
         box_size=10,
         border=4,
@@ -18,12 +18,11 @@ def gen_save_qrcode(url, img_filename):
     img = qr.make_image(fill_color="black", back_color="white")
     img.save(img_filename)
 
+
 with open(TRABALHOS_FILE, "r") as file:
     trabalhos = json.load(file)
 
     for tid in trabalhos:
-        link =f"{LINK_PREFIX}{tid}"
-        img_filename =  f"qr/{tid}.png"
+        link = f"{LINK_PREFIX}{tid}"
+        img_filename = f"qr_images/{tid}.png"
         gen_save_qrcode(link, img_filename)
-
-
