@@ -8,12 +8,13 @@
 </head>
 
 <body>
-    Pagina logar
+    Pagina logar<br>
 
     <p>
     <form action="{% url 'login' %}" method="POST">{% csrf_token %}
         <input type="text" placeholder="username" name="username"><br>
         <input type="password" placeholder="senha" name="password"><br>
+        <input type="hidden" name="next" value="{{next}}">
         <input type="submit" value="Login"><br>
     </form>
     </p>

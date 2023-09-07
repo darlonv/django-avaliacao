@@ -41,28 +41,41 @@ def page_signin(request):
 
 
 def page_login(request):
+    context = dict()
     # Caso o usuário já esteja autenticado, redireciona para a página de avaliação
     if request.user.is_authenticated:
         return redirect(page_avaliacao)
 
     # caso seja um get, apresenta o formulário para logar
     if request.method == "GET":
-        return render(request, "logar.html")
+        # Obtém a página a ser carregada após login, caso esteja definida
+        next_page = request.GET.get("next", "")
+        context["next"] = next_page
+
+        return render(request, "logar.html", context)
     # Caso seja uma requisição POST, entende que o formulário foi preenchido e
     # realiza a autenticação
     else:
         # obtém dados do formulário
         username = request.POST.get("username")
         password = request.POST.get("password")
+        next_page = request.POST.get("next", None)
 
         # verifica o login e senha do usuário
         user = authenticate(username=username, password=password)
         if user:
             # realiza a autenticação na sesssão
             login(request, user)
-            # redireciona para a página de avaliação
-            return redirect(page_avaliacao)
-            # return HttpResponse("Usuário autenticado")
+            if next_page:
+                # return HttpResponse(f"Usuário autenticado - {next_page}")
+                # redireciona para a página de avaliação
+
+                return redirect(next_page)
+            else:
+                # redireciona para a próxima página definida
+                return redirect(page_avaliacao)
+                # return HttpResponse(f"Usuário autenticado - {next_page}")
+
         else:
             return HttpResponse("Email ou senha inválidos")
 
