@@ -115,6 +115,10 @@ def pdfGridPrintTrabalhos(
         w, h = pagesize
         pdf = canvas.Canvas(filename, pagesize=pagesize)
 
+        grid_size = (len(xlist) -1 ) * (len(ylist) -1)
+
+        print(f'grid_size: {grid_size} - n_trabalhos: {len(trabalhos)}' )
+
         if print_grid:
             pdf.grid(xlist, ylist)
 
@@ -124,42 +128,55 @@ def pdfGridPrintTrabalhos(
         # pdf.circle(pos[0], pos[1], 0.5 * cm, fill=1)
 
         counter = 0
-        for i in range(len(grid)):
-            for j in range(len(grid[i])):
+        while counter < len(trabalhos):
+            #verifica se é necessário outra página
+            if counter > 0 and counter%grid_size == 0:
+                print("### New page!! ###", flush=True)
+                pdf.showPage()
+                #caso seja definido, mostra a grid
+                if print_grid:
+                    pdf.grid(xlist, ylist)
+
+            for i in range(len(grid)):
+                for j in range(len(grid[i])):
+                    
+                    print(f"++ Counter::: {counter} - {i}, {j}")
+                    if counter >= len(trabalhos):
+                        break
+
+                    pos = grid[i][j]
+                    # print(pos)
+                    trabalho = trabalhos[counter]
+                    l = 0
+                    for k in range(len(trabalho)):
+                        # print(counter, k)
+                        pdf.setFillColor(black)
+                        pdf.setFont(font, fontsize)
+                        if type(trabalho[k]) == str:
+                            pdf.drawString(
+                                pos[0] + borda_esq,
+                                pos[1] - borda_cima - l * alt_linha,
+                                trabalho[k],
+                            )
+                            l += 1
+                        else:
+                            # print("oi")
+                            # pdf.drawString(
+                            #     pos[0] + trabalho[k][0],
+                            #     pos[1] - trabalho[k][1],
+                            #     trabalho[k][2],
+                            # )
+                            pdf.drawInlineImage(
+                                trabalho[k][2],
+                                pos[0] + trabalho[k][0],
+                                pos[1] - trabalho[k][1],
+                                preserveAspectRatio=True,
+                            )
+
+                    counter += 1
+                    print(f"-- Counter::: {counter} - {i}, {j}")
                 if counter >= len(trabalhos):
                     break
-                pos = grid[i][j]
-                # print(pos)
-                trabalho = trabalhos[counter]
-                l = 0
-                for k in range(len(trabalho)):
-                    # print(counter, k)
-                    pdf.setFillColor(black)
-                    pdf.setFont(font, fontsize)
-                    if type(trabalho[k]) == str:
-                        pdf.drawString(
-                            pos[0] + borda_esq,
-                            pos[1] - borda_cima - l * alt_linha,
-                            trabalho[k],
-                        )
-                        l += 1
-                    else:
-                        # print("oi")
-                        # pdf.drawString(
-                        #     pos[0] + trabalho[k][0],
-                        #     pos[1] - trabalho[k][1],
-                        #     trabalho[k][2],
-                        # )
-                        pdf.drawInlineImage(
-                            trabalho[k][2],
-                            pos[0] + trabalho[k][0],
-                            pos[1] - trabalho[k][1],
-                            preserveAspectRatio=True,
-                        )
-
-                counter += 1
-            if counter >= len(trabalhos):
-                break
 
         # pdf.drawImage(im1, 0, 0, preserveAspectRatio=True)
         # pdf.drawInlineImage(im1, 0, 0, preserveAspectRatio=True)
@@ -221,10 +238,10 @@ def main():
 
 
     #Gera o pdf com os trabalhos
-    n_linhas = 7
-    n_colunas = 1
-    largura = 17.5
-    altura = 4
+    n_linhas = 1
+    n_colunas = 2
+    largura = 5
+    altura = 2
 
     pdfEtiquetas(
         n_linhas, n_colunas, largura, altura, trabalhos, filename=PDF_FILE_OUTPUT
