@@ -6,10 +6,32 @@ from reportlab.lib.units import cm
 from PIL import Image
 import PIL
 
+import qrcode
+import json
 
-FILENAME = "pdf/abc.pdf"
 
+PDF_FILE_OUTPUT = "pdf/abc.pdf"
 
+TRABALHOS_FILE = "trabalhos.json"
+END_IP = "127.0.0.1"
+QRCODE_LINK_PREFIX = "http://{}/avaliar/?tid={}"
+
+#Gera um qrcode a partir de um link
+# retorna um objeto PIL com a imagem do qrcode
+def get_qrcode(url):
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+
+    qr.add_data(url)
+    img = qr.make_image(fill_color="black", back_color="white")
+    return img
+
+#Gera a matriz a partir da lista de pontos x e y
+# retorna uma matriz, com as coordenadas do encontro de cada linha
 def getGrid(x_list, y_list):
     grid = []
 
@@ -22,7 +44,8 @@ def getGrid(x_list, y_list):
 
     return grid
 
-
+# Gera as listas de pontos x e y que correspondem às linhas da matriz
+# retorna duas listas, com as coordenadas x e y
 def getGridLists(
     n_rows=4,
     n_cols=4,
@@ -58,6 +81,11 @@ def getGridLists(
 
     return x_list, y_list
 
+# gera um pdf a partir de uma lista de itens, onde cada item é uma lista.
+#  caso os elementos do item sejam strings, imprime cada um em uma linha
+#  caso o elemento do item seja uma lista, deve ser [x, y, img], com as coordenadas
+#     x e y em que img deve ser printada no pdf. x e y correpondem ao canto inferior esquerdo
+#     de onde img deve ser apresentadada
 
 def pdfGridPrintTrabalhos(
     grid,
@@ -70,7 +98,7 @@ def pdfGridPrintTrabalhos(
     borda_esq=5,
     borda_cima=14,
     alt_linha=14,
-    filename=FILENAME,
+    filename=PDF_FILE_OUTPUT,
     pagesize=A4,
 ):
     # font = "Times-Roman"
@@ -153,7 +181,7 @@ def pdfEtiquetas(
     borda_esq=5,
     borda_cima=14,
     alt_linha=14,
-    filename=FILENAME,
+    filename=PDF_FILE_OUTPUT,
     pagesize=A4,
 ):
     x_list, y_list = getGridLists(n_linhas, n_colunas, largura, altura)
@@ -174,40 +202,35 @@ def pdfEtiquetas(
 
 
 def main():
-    # print(getGrid(4, 4, 2, 2))
-    # x_list, y_list = getGridLists(9, 3, 5, 3)
-    # pdfTestGrid(x_list, y_list)
-
-    # grid = getGrid(x_list, y_list)
-    # print(grid)
-    # pdfTestGrid(x_list, y_list, grid)
-
-    im1 = Image.open("./001.png")
-    im1 = im1.resize((100, 100))
+    #Prepara a lista de itens a serem impressos no pdf
     trabalhos = []
+    with open(TRABALHOS_FILE, "r") as file:
+        data = json.load(file)
+        # print(data)
+        for tid in data:
+            link = QRCODE_LINK_PREFIX.format(END_IP, tid)
+            # img_filename = f"qr_images/{tid}.png"
+            # gen_save_qrcode(link, img_filename)
 
-    for i in range(13):
-        trabalhos.append(
-            [f"Titulo: Trabalho {i}", f"Autores: {i} e {i+1}", [120, 110, im1]]
-        )
+            qr = get_qrcode(link)
+            qr = qr.resize((100,100))
 
-    # trabalhos = [
-    #     ["abc", "a", "qr1"],
-    #     ["def", "d", "qr2", "oioi", [50, 110, im1]],
-    #     ["ghi", "g", "qr test", [50, 110, im1]],
-    # ]
+            trabalhos.append([f"Titulo: Trabalho: {data[tid]['titulo']}", f"Autores: {data[tid]['autores']}", [200, 110, qr]])
 
+    print(trabalhos)
+
+
+    #Gera o pdf com os trabalhos
     n_linhas = 7
-    n_colunas = 2
-    largura = 8
+    n_colunas = 1
+    largura = 17.5
     altura = 4
 
     pdfEtiquetas(
-        n_linhas, n_colunas, largura, altura, trabalhos, filename="pdf/abc.pdf"
+        n_linhas, n_colunas, largura, altura, trabalhos, filename=PDF_FILE_OUTPUT
     )
-    # pdfGridPrintTrabalhos(grid, trabalhos, x_list, y_list)
 
-    # print(getGridLists(4, 4, 2, 2))
+    
 
 
 if __name__ == "__main__":
