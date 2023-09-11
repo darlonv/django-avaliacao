@@ -3,7 +3,7 @@ import json
 
 # TRABALHOS_FILE = "scripts/trabalhos.json"
 TRABALHOS_FILE = "trabalhos.json"
-LINK_PREFIX = "http://ip/path/?tid="
+LINK_PREFIX = "http://127.0.0.1/avaliar/?tid="
 
 
 def gen_save_qrcode(url, img_filename):
