@@ -11,4 +11,13 @@ six==1.16.0
 sqlparse==0.4.4
 typing_extensions==4.6.3
 tzdata==2023.3
-qrcode[pil]
+
+#qrcode
+qrcode==7.4.2
+Pillow==10.0.0
+pypng==0.20220715.0
+
+#pdf
+reportlab==4.0.4
+aspose-pdf==23.8.0
+
