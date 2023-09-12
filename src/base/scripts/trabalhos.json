@@ -3,7 +3,8 @@
         "titulo": "Computação",
         "autores": [
             "Darlon",
-            "Pedro"
+            "Pedro M",
+            "Pedro B"
         ]
     },
     "002": {
@@ -20,5 +21,21 @@
             "Heitor"
         ],
         "categoria": "E"
+    },
+    "004": {
+        "titulo": "Web",
+        "autores": [
+            "AA",
+            "BB"
+        ]
+    },
+    "005": {
+        "titulo": "Banco de Dados",
+        "autores": [
+            "Odair",
+            "Moreira"
+        ]
     }
+    
+
 }
