@@ -178,6 +178,10 @@ def pdfGridPrintTrabalhos(
                 if counter >= len(trabalhos):
                     break
 
+            
+            #caso seja definido, mostra a grid
+            if print_grid:
+                pdf.grid(xlist, ylist)
         # pdf.drawImage(im1, 0, 0, preserveAspectRatio=True)
         # pdf.drawInlineImage(im1, 0, 0, preserveAspectRatio=True)
 
@@ -197,11 +201,13 @@ def pdfEtiquetas(
     fontsize=14,
     borda_esq=5,
     borda_cima=14,
+    borda_pag_esq=5,
+    borda_pag_cima=14,
     alt_linha=14,
     filename=PDF_FILE_OUTPUT,
     pagesize=A4,
 ):
-    x_list, y_list = getGridLists(n_linhas, n_colunas, largura, altura)
+    x_list, y_list = getGridLists(n_linhas, n_colunas, largura, altura, left_border=borda_pag_esq, upper_border=borda_pag_cima, right_border=borda_pag_esq, bottom_border=borda_pag_cima)
     grid = getGrid(x_list, y_list)
 
     pdfGridPrintTrabalhos(
@@ -216,6 +222,14 @@ def pdfEtiquetas(
         borda_cima=borda_cima,
         alt_linha=alt_linha,
     )
+
+def getAutoresFromList(list_autores):
+    autores = list_autores[0]
+    
+    for i in range(1, len(list_autores) -1):
+        autores = f"{autores}, {list_autores[i]}"
+    autores = f"{autores} e {list_autores[-1]}"
+    return autores
 
 
 def main():
@@ -232,19 +246,32 @@ def main():
             qr = get_qrcode(link)
             qr = qr.resize((100,100))
 
-            trabalhos.append([f"Titulo: Trabalho: {data[tid]['titulo']}", f"Autores: {data[tid]['autores']}", [200, 110, qr]])
+            autores = getAutoresFromList(data[tid]['autores'])
+
+            trabalhos.append([f"{data[tid]['titulo']}", f"Autores:", f"{autores}", [180, 100, qr]])
 
     print(trabalhos)
 
 
     #Gera o pdf com os trabalhos
-    n_linhas = 1
+    #Quantidade de etiquetas
+    n_linhas = 8
     n_colunas = 2
-    largura = 5
-    altura = 2
+    #Tamanho das etiquetas
+    largura = 9.9
+    altura = 3.4
+    #bordas da página
+    borda_pag_esq=0.4
+    borda_pag_cima=1.6
+    #texto a partir das bordas da etiqueta
+    borda_esq=10
+    borda_cima=15
+    alt_linha=14 #múltiplo de pixels de cada linha
 
     pdfEtiquetas(
-        n_linhas, n_colunas, largura, altura, trabalhos, filename=PDF_FILE_OUTPUT
+        n_linhas, n_colunas, largura, altura, 
+        borda_esq=borda_esq, borda_cima=borda_cima, borda_pag_esq = borda_pag_esq, borda_pag_cima = borda_pag_cima,
+        itens=trabalhos, alt_linha=alt_linha, filename=PDF_FILE_OUTPUT, print_grid=True
     )
 
     
