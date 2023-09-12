@@ -6,10 +6,32 @@ from reportlab.lib.units import cm
 from PIL import Image
 import PIL
 
+import qrcode
+import json
 
-FILENAME = "pdf/abc.pdf"
 
+PDF_FILE_OUTPUT = "pdf/abc.pdf"
 
+TRABALHOS_FILE = "trabalhos.json"
+END_IP = "127.0.0.1"
+QRCODE_LINK_PREFIX = "http://{}/avaliar/?tid={}"
+
+#Gera um qrcode a partir de um link
+# retorna um objeto PIL com a imagem do qrcode
+def get_qrcode(url):
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+
+    qr.add_data(url)
+    img = qr.make_image(fill_color="black", back_color="white")
+    return img
+
+#Gera a matriz a partir da lista de pontos x e y
+# retorna uma matriz, com as coordenadas do encontro de cada linha
 def getGrid(x_list, y_list):
     grid = []
 
@@ -22,7 +44,8 @@ def getGrid(x_list, y_list):
 
     return grid
 
-
+# Gera as listas de pontos x e y que correspondem às linhas da matriz
+# retorna duas listas, com as coordenadas x e y
 def getGridLists(
     n_rows=4,
     n_cols=4,
@@ -58,6 +81,11 @@ def getGridLists(
 
     return x_list, y_list
 
+# gera um pdf a partir de uma lista de itens, onde cada item é uma lista.
+#  caso os elementos do item sejam strings, imprime cada um em uma linha
+#  caso o elemento do item seja uma lista, deve ser [x, y, img], com as coordenadas
+#     x e y em que img deve ser printada no pdf. x e y correpondem ao canto inferior esquerdo
+#     de onde img deve ser apresentadada
 
 def pdfGridPrintTrabalhos(
     grid,
@@ -70,7 +98,7 @@ def pdfGridPrintTrabalhos(
     borda_esq=5,
     borda_cima=14,
     alt_linha=14,
-    filename=FILENAME,
+    filename=PDF_FILE_OUTPUT,
     pagesize=A4,
 ):
     # font = "Times-Roman"
@@ -87,6 +115,10 @@ def pdfGridPrintTrabalhos(
         w, h = pagesize
         pdf = canvas.Canvas(filename, pagesize=pagesize)
 
+        grid_size = (len(xlist) -1 ) * (len(ylist) -1)
+
+        print(f'grid_size: {grid_size} - n_trabalhos: {len(trabalhos)}' )
+
         if print_grid:
             pdf.grid(xlist, ylist)
 
@@ -96,43 +128,60 @@ def pdfGridPrintTrabalhos(
         # pdf.circle(pos[0], pos[1], 0.5 * cm, fill=1)
 
         counter = 0
-        for i in range(len(grid)):
-            for j in range(len(grid[i])):
+        while counter < len(trabalhos):
+            #verifica se é necessário outra página
+            if counter > 0 and counter%grid_size == 0:
+                print("### New page!! ###", flush=True)
+                pdf.showPage()
+                #caso seja definido, mostra a grid
+                if print_grid:
+                    pdf.grid(xlist, ylist)
+
+            for i in range(len(grid)):
+                for j in range(len(grid[i])):
+                    
+                    print(f"++ Counter::: {counter} - {i}, {j}")
+                    if counter >= len(trabalhos):
+                        break
+
+                    pos = grid[i][j]
+                    # print(pos)
+                    trabalho = trabalhos[counter]
+                    l = 0
+                    for k in range(len(trabalho)):
+                        # print(counter, k)
+                        pdf.setFillColor(black)
+                        pdf.setFont(font, fontsize)
+                        if type(trabalho[k]) == str:
+                            pdf.drawString(
+                                pos[0] + borda_esq,
+                                pos[1] - borda_cima - l * alt_linha,
+                                trabalho[k],
+                            )
+                            l += 1
+                        else:
+                            # print("oi")
+                            # pdf.drawString(
+                            #     pos[0] + trabalho[k][0],
+                            #     pos[1] - trabalho[k][1],
+                            #     trabalho[k][2],
+                            # )
+                            pdf.drawInlineImage(
+                                trabalho[k][2],
+                                pos[0] + trabalho[k][0],
+                                pos[1] - trabalho[k][1],
+                                preserveAspectRatio=True,
+                            )
+
+                    counter += 1
+                    print(f"-- Counter::: {counter} - {i}, {j}")
                 if counter >= len(trabalhos):
                     break
-                pos = grid[i][j]
-                # print(pos)
-                trabalho = trabalhos[counter]
-                l = 0
-                for k in range(len(trabalho)):
-                    # print(counter, k)
-                    pdf.setFillColor(black)
-                    pdf.setFont(font, fontsize)
-                    if type(trabalho[k]) == str:
-                        pdf.drawString(
-                            pos[0] + borda_esq,
-                            pos[1] - borda_cima - l * alt_linha,
-                            trabalho[k],
-                        )
-                        l += 1
-                    else:
-                        # print("oi")
-                        # pdf.drawString(
-                        #     pos[0] + trabalho[k][0],
-                        #     pos[1] - trabalho[k][1],
-                        #     trabalho[k][2],
-                        # )
-                        pdf.drawInlineImage(
-                            trabalho[k][2],
-                            pos[0] + trabalho[k][0],
-                            pos[1] - trabalho[k][1],
-                            preserveAspectRatio=True,
-                        )
 
-                counter += 1
-            if counter >= len(trabalhos):
-                break
-
+            
+            #caso seja definido, mostra a grid
+            if print_grid:
+                pdf.grid(xlist, ylist)
         # pdf.drawImage(im1, 0, 0, preserveAspectRatio=True)
         # pdf.drawInlineImage(im1, 0, 0, preserveAspectRatio=True)
 
@@ -152,11 +201,13 @@ def pdfEtiquetas(
     fontsize=14,
     borda_esq=5,
     borda_cima=14,
+    borda_pag_esq=5,
+    borda_pag_cima=14,
     alt_linha=14,
-    filename=FILENAME,
+    filename=PDF_FILE_OUTPUT,
     pagesize=A4,
 ):
-    x_list, y_list = getGridLists(n_linhas, n_colunas, largura, altura)
+    x_list, y_list = getGridLists(n_linhas, n_colunas, largura, altura, left_border=borda_pag_esq, upper_border=borda_pag_cima, right_border=borda_pag_esq, bottom_border=borda_pag_cima)
     grid = getGrid(x_list, y_list)
 
     pdfGridPrintTrabalhos(
@@ -172,42 +223,58 @@ def pdfEtiquetas(
         alt_linha=alt_linha,
     )
 
+def getAutoresFromList(list_autores):
+    autores = list_autores[0]
+    
+    for i in range(1, len(list_autores) -1):
+        autores = f"{autores}, {list_autores[i]}"
+    autores = f"{autores} e {list_autores[-1]}"
+    return autores
+
 
 def main():
-    # print(getGrid(4, 4, 2, 2))
-    # x_list, y_list = getGridLists(9, 3, 5, 3)
-    # pdfTestGrid(x_list, y_list)
-
-    # grid = getGrid(x_list, y_list)
-    # print(grid)
-    # pdfTestGrid(x_list, y_list, grid)
-
-    im1 = Image.open("./001.png")
-    im1 = im1.resize((100, 100))
+    #Prepara a lista de itens a serem impressos no pdf
     trabalhos = []
+    with open(TRABALHOS_FILE, "r") as file:
+        data = json.load(file)
+        # print(data)
+        for tid in data:
+            link = QRCODE_LINK_PREFIX.format(END_IP, tid)
+            # img_filename = f"qr_images/{tid}.png"
+            # gen_save_qrcode(link, img_filename)
 
-    for i in range(13):
-        trabalhos.append(
-            [f"Titulo: Trabalho {i}", f"Autores: {i} e {i+1}", [120, 110, im1]]
-        )
+            qr = get_qrcode(link)
+            qr = qr.resize((100,100))
 
-    # trabalhos = [
-    #     ["abc", "a", "qr1"],
-    #     ["def", "d", "qr2", "oioi", [50, 110, im1]],
-    #     ["ghi", "g", "qr test", [50, 110, im1]],
-    # ]
+            autores = getAutoresFromList(data[tid]['autores'])
 
-    n_linhas = 7
+            trabalhos.append([f"{data[tid]['titulo']}", f"Autores:", f"{autores}", [180, 100, qr]])
+
+    print(trabalhos)
+
+
+    #Gera o pdf com os trabalhos
+    #Quantidade de etiquetas
+    n_linhas = 8
     n_colunas = 2
-    largura = 8
-    altura = 4
+    #Tamanho das etiquetas
+    largura = 9.9
+    altura = 3.4
+    #bordas da página
+    borda_pag_esq=0.4
+    borda_pag_cima=1.6
+    #texto a partir das bordas da etiqueta
+    borda_esq=10
+    borda_cima=15
+    alt_linha=14 #múltiplo de pixels de cada linha
 
     pdfEtiquetas(
-        n_linhas, n_colunas, largura, altura, trabalhos, filename="pdf/abc.pdf"
+        n_linhas, n_colunas, largura, altura, 
+        borda_esq=borda_esq, borda_cima=borda_cima, borda_pag_esq = borda_pag_esq, borda_pag_cima = borda_pag_cima,
+        itens=trabalhos, alt_linha=alt_linha, filename=PDF_FILE_OUTPUT, print_grid=True
     )
-    # pdfGridPrintTrabalhos(grid, trabalhos, x_list, y_list)
 
-    # print(getGridLists(4, 4, 2, 2))
+    
 
 
 if __name__ == "__main__":
