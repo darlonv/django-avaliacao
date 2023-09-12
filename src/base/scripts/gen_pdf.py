@@ -140,7 +140,6 @@ def pdfGridPrintTrabalhos(
             for i in range(len(grid)):
                 for j in range(len(grid[i])):
                     
-                    print(f"++ Counter::: {counter} - {i}, {j}")
                     if counter >= len(trabalhos):
                         break
 
@@ -174,7 +173,6 @@ def pdfGridPrintTrabalhos(
                             )
 
                     counter += 1
-                    print(f"-- Counter::: {counter} - {i}, {j}")
                 if counter >= len(trabalhos):
                     break
 
